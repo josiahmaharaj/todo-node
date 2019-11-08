@@ -4,10 +4,14 @@
   "description": "Simple todo application.",
   "main": "server.js",
   "author": "Scotch",
+  "scripts": {
+    "lint": "eslint \"./**/*.js\""
+  },
   "dependencies": {
     "body-parser": "^1.18.2",
     "mongoose": "4.10.8",
     "express": "^4.10.8",
+    "eslint": "^6.6.0",
     "method-override": "^2.3.10",
     "morgan": "^1.9.0"
   }
