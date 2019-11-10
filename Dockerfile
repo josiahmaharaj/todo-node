@@ -11,7 +11,3 @@ COPY . .
 EXPOSE 8080
 
 CMD ["npm","start"]
-
-
- docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
-docker
