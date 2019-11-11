@@ -3,32 +3,43 @@ version: '3'
 services:
   #setup node using Dockerfile
   app:
-    container_name: docker-node-mongo
-    restart: always
-    build: .
+    # container_name: docker-node-mongo
+    # restart: alwayscd
+    # build: .
+    image: medullan/app
     ports:
       - '8080:8080'
-    links:
+    deploy:
+      replicas: 3
+      restart_policy:
+        max_attempts: 3
+        condition: on-failure
+    depends_on:
       - mongo
-  app2:
-    container_name: docker-node-mongo-2
-    restart: always
-    build: .
-    ports:
-      - '8081:8080'
-    links:
-      - mongo
+    networks:
+      - balance
   # setup db
   mongo:
-    container_name: mongodb
+    # container_name: mongodb
     image: mongo
     ports:
       - '27017:27017'
-  # nginx:
-  #   image: nginx:latest
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
-  #   depends_on:
-  #     - app
-  #   ports:
-  #     - '4000:4000'
+    volumes:
+      - ./data:/data/db
+    networks:
+      - balance
+  proxy:
+    image: medullan/balancer
+    ports: 
+      - '9000:80'
+    depends_on:
+      - app
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - balance
+
+networks: 
+  balance:
+    driver: overlay
