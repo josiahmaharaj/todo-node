@@ -1,45 +1,46 @@
 version: '3'
 
 services:
-  #setup node using Dockerfile
-  app:
-    # container_name: docker-node-mongo
-    # restart: alwayscd
-    # build: .
-    image: medullan/app
+  nodeapp:
+    image: todoapp
     ports:
-      - '8080:8080'
+      - 8080:8080
     deploy:
       replicas: 3
       restart_policy:
         max_attempts: 3
-        condition: on-failure
+        condition: on-failure       
+      update_config:
+        parallelism: 3
+        delay: 10s
     depends_on:
       - mongo
-    networks:
-      - balance
-  # setup db
+    environment:
+      - DB_URL=mongodb://mongo/meanstacktutorials
+    networks: 
+      - balance 
+  
   mongo:
-    # container_name: mongodb
     image: mongo
     ports:
-      - '27017:27017'
+      - 27017:27017
     volumes:
       - ./data:/data/db
-    networks:
+    networks: 
       - balance
+  
   proxy:
-    image: medullan/balancer
-    ports: 
-      - '9000:80'
+    image: balancer
+    ports:
+      - 80:80
     depends_on:
-      - app
+      - nodeapp
     deploy:
       placement:
         constraints: [node.role == manager]
-    networks:
+    networks: 
       - balance
 
-networks: 
+networks:
   balance:
     driver: overlay

@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  #setup node using Dockerfile
+  app:
+    image: medullan/app
+    ports:
+      - '9090:8080'
+    deploy:
+      replicas: 3
+      restart_policy:
+        # max_attempts: 3
+        condition: on-failure
+    networks:
+      - balance
+    depends_on:
+      - mongo
+  # setup db
+  mongo:
+    image: mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - ./data:/data/db
+    networks:
+      - balance
+  proxy:
+    image: medullan/balancer
+    ports: 
+      - '80:80'
+    depends_on:
+      - app
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - balance
+
+networks: 
+  balance:
+    driver: bridge
